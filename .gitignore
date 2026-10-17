@@ -1,0 +1,45 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build outputs
+dist/
+.next/
+.turbo/
+out/
+
+# environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# debug
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# testing
+coverage/
+
+# supabase
+supabase/.temp/
+supabase/.branches/
+
+# .gitignore (append if missing)
+.env
+.env.*      # catches .env.production.example, .env.local, etc.
+
+# private team docs
+TEAM_CREDENTIALS.md
