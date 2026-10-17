@@ -1,0 +1,23 @@
+# Add this block to your host Caddyfile (typically /etc/caddy/Caddyfile),
+# replacing outsauce.elixxir.tech with your actual DEPLOY_DOMAIN if different.
+# After editing, run: sudo systemctl reload caddy
+
+outsauce.elixxir.tech {
+	encode gzip zstd
+
+	@api path /api/*
+	handle @api {
+		reverse_proxy 127.0.0.1:3001
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:3000
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
