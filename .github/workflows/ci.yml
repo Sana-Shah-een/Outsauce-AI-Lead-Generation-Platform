@@ -46,7 +46,7 @@ jobs:
         run: pnpm lint
 
       - name: Run API unit tests
-        run: pnpm --filter @outsauce/api test -- --runInBand
+        run: pnpm --filter @outsauce/api exec jest --runInBand
 
       - name: Build workspaces
         run: pnpm build
