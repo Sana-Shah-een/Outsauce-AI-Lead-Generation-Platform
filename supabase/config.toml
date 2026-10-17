@@ -1,0 +1,35 @@
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+
+[db]
+port = 54322
+major_version = 15
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/callback"]
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+max_frequency = "0s"
+
+[auth.external.google]
+enabled = true
+client_id = "env(GOOGLE_CLIENT_ID)"
+secret = "env(GOOGLE_CLIENT_SECRET)"
+redirect_uri = "http://localhost:54321/auth/v1/callback"
+
+[analytics]
+enabled = false
+
+[auth.email.smtp]
+host = "smtp.gmail.com"
+port = 465
+user = "outsauce.official@gmail.com"
+pass = "env(SMTP_PASS)"
+admin_email = "outsauce.official@gmail.com"
+sender_name = "OutSauce"
