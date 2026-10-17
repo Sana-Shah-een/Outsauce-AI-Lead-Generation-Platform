@@ -47,6 +47,35 @@ git pull
 docker compose up -d --build
 ```
 
+## CI/CD
+
+GitHub Actions runs on pull requests and pushes to `main`:
+
+- `CI` installs the locked dependencies, runs linting and API unit tests, builds
+  all workspaces, and builds both production Docker images.
+- `Deploy` runs after a push to `main` (or from the Actions tab via
+  `workflow_dispatch`), updates the checkout on the server, rebuilds the
+  Compose services, and checks both health endpoints.
+
+Create a GitHub environment named `production`, then add these environment
+secrets:
+
+| Secret | Description |
+| --- | --- |
+| `DEPLOY_HOST` | Public hostname or IP of the deployment server |
+| `DEPLOY_USER` | SSH user with permission to run Docker Compose |
+| `DEPLOY_SSH_KEY` | Private SSH key for that user |
+| `DEPLOY_PORT` | SSH port; optional, defaults to `22` |
+| `DEPLOY_PATH` | Absolute path to the checked-out repository on the server |
+
+The server must have Docker, the Compose plugin, and a checkout whose `origin`
+points to this repository. Keep the production `.env` on the server at
+`DEPLOY_PATH/.env`; it is intentionally not stored in GitHub Actions. The SSH
+user must be able to run Docker without an interactive password prompt.
+
+The deployment uses `git reset --hard origin/main` in the deployment checkout.
+Keep that checkout dedicated to deployments and do not make local changes there.
+
 ## Logs
 
 ```bash
