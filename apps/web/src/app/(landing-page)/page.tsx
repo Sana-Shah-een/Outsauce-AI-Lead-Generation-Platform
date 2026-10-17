@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type { ComponentType } from "react";
 import { motion, useScroll, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import Link from "next/link";
@@ -24,7 +25,6 @@ import {
   Zap,
   Users,
   Monitor,
-  XCircle,
   ChevronDown,
   Menu,
   X
@@ -47,22 +47,17 @@ const staggerContainer = {
   },
 };
 
-const GithubIcon = ({ className = "" }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3-.3 6-1.5 6-6.5a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 5 3 6.2 6 6.5a4.8 4.8 0 0 0-1 3.2v4" />
-  </svg>
-);
+interface PricingCardProps {
+  plan: string;
+  description: string;
+  price: string;
+  features: string[];
+  buttonText: string;
+  recommended?: boolean;
+  className?: string;
+}
 
-const PricingCard = ({ plan, description, price, features, buttonText, recommended, className }: any) => {
+const PricingCard = ({ plan, description, price, features, buttonText, recommended, className = "" }: PricingCardProps) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -113,7 +108,14 @@ const PricingCard = ({ plan, description, price, features, buttonText, recommend
   );
 };
 
-const BentoCard = ({ title, description, icon: Icon, className = "" }: any) => {
+interface BentoCardProps {
+  title: string;
+  description: string;
+  icon: ComponentType<{ className?: string }>;
+  className?: string;
+}
+
+const BentoCard = ({ title, description, icon: Icon, className = "" }: BentoCardProps) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -184,7 +186,8 @@ export default function LandingPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const timeout = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(timeout);
   }, []);
 
   const isLightMode = theme === "light";
@@ -364,7 +367,7 @@ export default function LandingPage() {
             className="text-center mb-12"
           >
             <h2 className="text-3xl font-bold tracking-tight text-text-main mb-3">
-              Everything you need. Nothing you don't.
+              Everything you need. Nothing you don&apos;t.
             </h2>
             <p className="text-lg text-text-muted">
               A comprehensive toolkit engineered for modern professionals.
@@ -424,7 +427,7 @@ export default function LandingPage() {
               Built for every kind of hustle.
             </h2>
             <p className="text-lg text-text-muted max-w-2xl mx-auto">
-              Whether you're finding your next gig, or sourcing the perfect candidate.
+              Whether you&apos;re finding your next gig, or sourcing the perfect candidate.
             </p>
           </motion.div>
           <motion.div

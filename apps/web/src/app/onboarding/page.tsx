@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, getErrorMessage } from '@/lib/api-client';
 import {
   User,
   Briefcase,
@@ -98,8 +98,8 @@ export default function OnboardingPage() {
         body: JSON.stringify(payload),
       });
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong. Please try again.');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Something went wrong. Please try again.'));
     } finally {
       setSaving(false);
     }
@@ -182,7 +182,7 @@ export default function OnboardingPage() {
                           Welcome to Outsauce 👋
                         </h1>
                         <p className="mt-1 text-sm text-muted-foreground">
-                          Let's set up your profile in just a few quick steps.
+                          Let&apos;s set up your profile in just a few quick steps.
                         </p>
                       </div>
                       <div className="space-y-2">

@@ -29,11 +29,6 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import {
   Trash2,
   ExternalLink,
   CheckCircle2,
@@ -106,11 +101,9 @@ function timeAgo(dateStr: string): string {
 
 export function LeadTable({
   leads,
-  allTags = [],
   onLeadsChange,
 }: {
   leads: Lead[];
-  allTags?: Tag[];
   onLeadsChange: () => void;
 }) {
   const router = useRouter();

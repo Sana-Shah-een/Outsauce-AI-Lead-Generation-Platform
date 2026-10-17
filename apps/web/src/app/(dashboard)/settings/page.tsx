@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, getErrorMessage } from '@/lib/api-client';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -111,9 +111,9 @@ export default function SettingsPage() {
       setProfile(data);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to save profile:', err);
-      setError(err.message || 'Failed to save changes');
+      setError(getErrorMessage(err, 'Failed to save changes'));
     } finally {
       setSaving(false);
     }
@@ -132,9 +132,9 @@ export default function SettingsPage() {
       const supabase = createClient();
       await supabase.auth.signOut();
       router.push('/');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to delete account:', err);
-      setError(err.message || 'Failed to delete account');
+      setError(getErrorMessage(err, 'Failed to delete account'));
       setIsDeleting(false);
     }
   }

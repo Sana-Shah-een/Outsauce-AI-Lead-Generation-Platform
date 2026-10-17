@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { BentoCard } from '@/components/ui/bento-card';
 import { apiClient } from '@/lib/api-client';
 import { Users, Activity, Sparkles, Shield, BarChart3, Mailbox, CreditCard } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 
 interface Analytics {
   totalUsers: number;
@@ -105,10 +105,10 @@ export default function AdminOverviewPage() {
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <HealthMetric label="API Server" status="optimal" latency="124ms" />
-              <HealthMetric label="Database" status="optimal" latency="45ms" />
-              <HealthMetric label="N8N Webhooks" status="optimal" latency="280ms" />
-              <HealthMetric label="Mail Server" status="optimal" latency="1.2s" />
+              <HealthMetric label="API Server" latency="124ms" />
+              <HealthMetric label="Database" latency="45ms" />
+              <HealthMetric label="N8N Webhooks" latency="280ms" />
+              <HealthMetric label="Mail Server" latency="1.2s" />
             </div>
           </BentoCard>
         </div>
@@ -130,7 +130,16 @@ export default function AdminOverviewPage() {
   );
 }
 
-function DashboardMetricCard({ title, value, description, icon, iconContainerClass, delay }: any) {
+interface DashboardMetricCardProps {
+  title: string;
+  value: string | number;
+  description: string;
+  icon: ReactNode;
+  iconContainerClass?: string;
+  delay: number;
+}
+
+function DashboardMetricCard({ title, value, description, icon, iconContainerClass, delay }: DashboardMetricCardProps) {
   return (
     <BentoCard delay={delay} className="p-6 relative group overflow-hidden">
       <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-gradient-to-br from-current to-transparent opacity-[0.03] rounded-full blur-2xl group-hover:opacity-10 transition-opacity duration-500" style={{ color: 'inherit' }} />
@@ -148,7 +157,7 @@ function DashboardMetricCard({ title, value, description, icon, iconContainerCla
   );
 }
 
-function HealthMetric({ label, status, latency }: any) {
+function HealthMetric({ label, latency }: { label: string; latency: string }) {
   return (
     <div className="p-4 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.05] dark:border-white/[0.05] flex items-center justify-between">
       <div className="flex items-center gap-3">

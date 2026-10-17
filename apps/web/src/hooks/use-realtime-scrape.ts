@@ -41,7 +41,7 @@ export function useRealtimeScrape(jobId: string | null) {
             table: 'scrape_jobs',
             filter: `id=eq.${jobId}`,
           },
-          (payload: any) => {
+          (payload: { new: unknown }) => {
             const updated = payload.new as ScrapeJobUpdate;
             setStatus(updated.status);
             setResultCount(updated.result_count);

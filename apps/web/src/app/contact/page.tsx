@@ -49,11 +49,14 @@ export default function ContactPage() {
       supabase.functions
         .invoke('send-contact-email', { body: { name: fullName, email, message } })
         .catch((fnErr: unknown) =>
-          console.warn('[Contact] Edge fn notification skipped:', (fnErr as any)?.message),
+          console.warn(
+            '[Contact] Edge fn notification skipped:',
+            fnErr instanceof Error ? fnErr.message : 'Unknown error',
+          ),
         );
 
       setIsSubmitted(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error sending message:', err);
       alert('Failed to send message. Please try again later.');
     } finally {
@@ -87,7 +90,7 @@ export default function ContactPage() {
         >
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-text-main mb-6">Get in touch</h1>
           <p className="text-xl text-text-muted font-medium max-w-2xl">
-            Have a question, feedback, or need support? We'd love to hear from you. Drop us a message below.
+            Have a question, feedback, or need support? We&apos;d love to hear from you. Drop us a message below.
           </p>
         </motion.div>
       </header>

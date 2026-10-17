@@ -26,7 +26,9 @@ export function NotificationBell() {
   }, []);
 
   useEffect(() => {
-    fetchUnreadCount();
+    queueMicrotask(() => {
+      void fetchUnreadCount();
+    });
 
     const supabase = createClient();
     const channel = supabase

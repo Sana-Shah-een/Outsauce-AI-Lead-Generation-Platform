@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { createRealtimeAuthedClient } from '@/lib/supabase/realtime';
 import {
@@ -50,7 +50,6 @@ const bottomItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
 
   async function handleSignOut() {
     try {

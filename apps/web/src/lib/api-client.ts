@@ -2,6 +2,10 @@ import { createClient } from '@/lib/supabase/client';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
+export function getErrorMessage(error: unknown, fallback: string): string {
+  return error instanceof Error ? error.message : fallback;
+}
+
 export async function apiClient<T = unknown>(
   path: string,
   options: RequestInit = {},

@@ -200,7 +200,7 @@ export default function LeadsPage() {
             <Skeleton className="h-10 w-full" />
           </div>
         ) : (
-          <LeadTable leads={leads} allTags={tags} onLeadsChange={fetchLeads} />
+          <LeadTable leads={leads} onLeadsChange={fetchLeads} />
         )}
       </div>
     </div>

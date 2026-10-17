@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { BentoCard } from "@/components/ui/bento-card";
 import { Search, Users, Network, Sparkles, CheckCircle2, ArrowRight } from "lucide-react";
@@ -34,7 +34,6 @@ function planLabel(plan: string): string {
 }
 
 export function DashboardClient({ data }: { data: DashboardData }) {
-  const router = useRouter();
   const [metrics, setMetrics] = useState<DashboardData>(data);
 
   useEffect(() => {
@@ -55,7 +54,6 @@ export function DashboardClient({ data }: { data: DashboardData }) {
         activeHuntsRes,
         huntCountRes,
         leadCountRes,
-        aiCountRes,
         subscriptionRes,
         usageRes,
         connectionsRes,
@@ -71,10 +69,6 @@ export function DashboardClient({ data }: { data: DashboardData }) {
           .eq('user_id', user.id),
         supabase
           .from('leads')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', user.id),
-        supabase
-          .from('ai_generations')
           .select('id', { count: 'exact', head: true })
           .eq('user_id', user.id),
         supabase
@@ -97,7 +91,6 @@ export function DashboardClient({ data }: { data: DashboardData }) {
       ]);
 
       const actualLeadsCount = leadCountRes.count ?? 0;
-      const actualAiCount = aiCountRes.count ?? 0;
       const usageLeads = usageRes.data?.leads_used ?? 0;
       const usageAi = usageRes.data?.ai_generations_used ?? 0;
 
@@ -164,7 +157,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
           supabase.removeChannel(channel);
           unsubscribeAuth();
         };
-      } catch (e) {
+      } catch {
         // Fallback to polling if realtime fails
       }
     })();
@@ -196,7 +189,7 @@ export function DashboardClient({ data }: { data: DashboardData }) {
           Welcome back{metrics.userName ? `, ${metrics.userName}` : ''}
         </h1>
         <p className="mt-2 text-base text-text-muted">
-          Here is what's happening with your account today.
+          Here is what&apos;s happening with your account today.
         </p>
       </motion.div>
 
@@ -293,7 +286,16 @@ export function DashboardClient({ data }: { data: DashboardData }) {
   );
 }
 
-function DashboardMetricCard({ title, value, description, icon, iconContainerClass, delay }: any) {
+interface DashboardMetricCardProps {
+  title: string;
+  value: string;
+  description: string;
+  icon: ReactNode;
+  iconContainerClass?: string;
+  delay: number;
+}
+
+function DashboardMetricCard({ title, value, description, icon, iconContainerClass, delay }: DashboardMetricCardProps) {
   return (
     <BentoCard delay={delay} className="p-6 relative group overflow-hidden">
       <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-gradient-to-br from-current to-transparent opacity-[0.03] rounded-full blur-2xl group-hover:opacity-10 transition-opacity duration-500" style={{ color: 'inherit' }} />
@@ -311,7 +313,15 @@ function DashboardMetricCard({ title, value, description, icon, iconContainerCla
   );
 }
 
-function Step({ number, title, description, isCompleted, href }: any) {
+interface StepProps {
+  number: number;
+  title: string;
+  description: string;
+  isCompleted: boolean;
+  href?: string;
+}
+
+function Step({ number, title, description, isCompleted, href }: StepProps) {
   const content = (
     <div className={`group flex items-start gap-4 ${href ? 'cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 p-3 -m-3 rounded-xl transition-colors' : ''}`}>
       <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border transition-all duration-300 shadow-sm ${
@@ -338,7 +348,13 @@ function Step({ number, title, description, isCompleted, href }: any) {
   return content;
 }
 
-function ActionButton({ label, icon, href }: any) {
+interface ActionButtonProps {
+  label: string;
+  icon: ReactNode;
+  href?: string;
+}
+
+function ActionButton({ label, icon, href }: ActionButtonProps) {
   const content = (
     <button className="flex items-center gap-3 w-full p-3.5 rounded-xl bg-white/40 dark:bg-white/[0.02] hover:bg-white/80 dark:hover:bg-white/[0.06] border border-white/50 dark:border-white/5 hover:border-brand-red/30 dark:hover:border-brand-red/40 shadow-sm transition-all duration-300 text-left group">
       <div className="p-2 rounded-lg bg-black/[0.03] dark:bg-white/5 text-text-muted group-hover:bg-brand-red group-hover:text-white group-hover:shadow-[0_0_15px_rgba(196,30,30,0.4)] transition-all duration-300">

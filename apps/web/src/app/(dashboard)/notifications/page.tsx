@@ -42,7 +42,9 @@ export default function NotificationsPage() {
   }, []);
 
   useEffect(() => {
-    fetchNotifications();
+    queueMicrotask(() => {
+      void fetchNotifications();
+    });
 
     let cancelled = false;
     let cleanup: (() => void) | null = null;

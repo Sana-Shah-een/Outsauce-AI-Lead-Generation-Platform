@@ -34,14 +34,11 @@ export default async function DashboardPage() {
     return <DashboardClient data={data} />;
   }
 
-  const now = new Date().toISOString();
-
   const [
     profileRes,
     activeHuntsRes,
     huntCountRes,
     leadCountRes,
-    aiCountRes,
     subscriptionRes,
     usageRes,
     connectionsRes,
@@ -62,10 +59,6 @@ export default async function DashboardPage() {
       .eq('user_id', user.id),
     supabase
       .from('leads')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', user.id),
-    supabase
-      .from('ai_generations')
       .select('id', { count: 'exact', head: true })
       .eq('user_id', user.id),
     supabase
@@ -91,7 +84,6 @@ export default async function DashboardPage() {
   const limits = PLAN_LIMITS[plan] ?? PLAN_LIMITS.free;
 
   const actualLeadsCount = leadCountRes.count ?? 0;
-  const actualAiCount = aiCountRes.count ?? 0;
   const usageLeads = usageRes.data?.leads_used ?? 0;
   const usageAi = usageRes.data?.ai_generations_used ?? 0;
 

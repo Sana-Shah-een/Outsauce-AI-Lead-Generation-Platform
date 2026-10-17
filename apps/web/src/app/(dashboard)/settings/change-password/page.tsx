@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, getErrorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -51,9 +51,9 @@ export default function ChangePasswordPage() {
       setTimeout(() => {
         router.push('/settings');
       }, 2000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to change password:', err);
-      setError(err.message || 'Failed to change password');
+      setError(getErrorMessage(err, 'Failed to change password'));
     } finally {
       setSaving(false);
     }

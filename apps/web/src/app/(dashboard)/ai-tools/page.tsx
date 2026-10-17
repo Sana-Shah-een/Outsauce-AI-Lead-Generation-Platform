@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, getErrorMessage } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -156,8 +156,8 @@ export default function AiToolsPage() {
 
       setOutput(res.message);
       toast.success('Outreach message generated!');
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to generate outreach message');
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Failed to generate outreach message'));
     } finally {
       setGenerating(false);
     }
@@ -183,8 +183,8 @@ export default function AiToolsPage() {
         }),
       });
       setOutput(result.output_text);
-    } catch (err: any) {
-      toast.error(err?.message || 'Failed to generate content');
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Failed to generate content'));
     } finally {
       setGenerating(false);
     }

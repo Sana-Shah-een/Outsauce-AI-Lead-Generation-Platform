@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { apiClient } from '@/lib/api-client';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { apiClient, getErrorMessage } from '@/lib/api-client';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -44,7 +44,7 @@ export default function CandidateProfilePage() {
             skills: (data.skills || []).join(', '),
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to fetch candidate profile:', err);
       } finally {
         setLoading(false);
@@ -80,9 +80,9 @@ export default function CandidateProfilePage() {
       setSaved(true);
       toast.success('AI match profile updated successfully');
       setTimeout(() => setSaved(false), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to save profile:', err);
-      const msg = err?.message || 'Failed to save candidate profile';
+      const msg = getErrorMessage(err, 'Failed to save candidate profile');
       setError(msg);
       toast.error(msg);
     } finally {

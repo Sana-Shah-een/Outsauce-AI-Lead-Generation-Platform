@@ -18,12 +18,9 @@ import {
   Reply,
   CornerDownLeft,
   Inbox,
-  Filter,
   RefreshCw,
   User,
   Calendar,
-  Tag,
-  Clock,
   MailCheck,
   AlertCircle,
 } from 'lucide-react';
@@ -107,7 +104,7 @@ export default function AdminContactPage() {
     }
   };
 
-  const handleToggleRead = async (sub: ContactSubmission, e: React.MouseEvent) => {
+  const handleToggleRead = async (sub: ContactSubmission, e: React.SyntheticEvent) => {
     e.stopPropagation();
     try {
       await apiClient(`/api/admin/contact/${sub.id}/read`, {
@@ -328,7 +325,7 @@ export default function AdminContactPage() {
                         role="button"
                         tabIndex={0}
                         onClick={(e) => handleToggleRead(sub, e)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleToggleRead(sub, e as any)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleToggleRead(sub, e)}
                         title={sub.is_read ? 'Mark as unread' : 'Mark as read'}
                         className="opacity-0 group-hover:opacity-100 flex-shrink-0 mt-1 transition-opacity cursor-pointer"
                       >
