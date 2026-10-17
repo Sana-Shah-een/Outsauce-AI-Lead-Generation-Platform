@@ -25,9 +25,7 @@ export class WebhooksService {
         .single();
 
       if (jobError || !job) {
-        this.logger.error(
-          `Scrape job ${payload.scrape_job_id} not found`,
-        );
+        this.logger.error(`Scrape job ${payload.scrape_job_id} not found`);
         throw new Error(`Scrape job ${payload.scrape_job_id} not found`);
       }
 
@@ -50,7 +48,9 @@ export class WebhooksService {
       const { data: insertedResults, error: insertError } = await supabase
         .from('scrape_results')
         .insert(results)
-        .select('id, source, source_url, title, description, company, location, salary_range, salary_min, salary_max, metadata');
+        .select(
+          'id, source, source_url, title, description, company, location, salary_range, salary_min, salary_max, metadata',
+        );
 
       if (insertError) {
         this.logger.error(
@@ -85,20 +85,30 @@ export class WebhooksService {
           salary_max: sr.salary_max,
           metadata: sr.metadata,
         }));
-        const { error: leadsErr } = await supabase.from('leads').insert(leadRows);
+        const { error: leadsErr } = await supabase
+          .from('leads')
+          .insert(leadRows);
         if (leadsErr) {
-          this.logger.warn(`Failed to auto-create leads for hunt ${payload.scrape_job_id}: ${leadsErr.message}`);
+          this.logger.warn(
+            `Failed to auto-create leads for hunt ${payload.scrape_job_id}: ${leadsErr.message}`,
+          );
         } else {
-          for (const lead of leadRows) {
-            await this.usageService.recordUsage(job.user_id, 'lead_created', { hunt_id: payload.scrape_job_id });
+          for (let index = 0; index < leadRows.length; index += 1) {
+            await this.usageService.recordUsage(job.user_id, 'lead_created', {
+              hunt_id: payload.scrape_job_id,
+            });
           }
         }
       }
 
       // Fire asynchronous AI lead fit scoring
-      this.leadsService.scoreNewLeadsForHunt(payload.scrape_job_id).catch((err) =>
-        this.logger.error(`Background scoring failed for hunt ${payload.scrape_job_id}: ${err.message}`),
-      );
+      this.leadsService
+        .scoreNewLeadsForHunt(payload.scrape_job_id)
+        .catch((err) =>
+          this.logger.error(
+            `Background scoring failed for hunt ${payload.scrape_job_id}: ${err.message}`,
+          ),
+        );
     } else if (payload.status === 'failed') {
       await supabase
         .from('scrape_jobs')

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { SupabaseService } from '../../supabase/supabase.service';
 import type { User } from '@supabase/supabase-js';
 
@@ -16,7 +20,9 @@ const ALLOWED_PROFILE_FIELDS = new Set([
   'is_discoverable',
 ]);
 
-function sanitizeProfileInput(input: Record<string, unknown>): Record<string, unknown> {
+function sanitizeProfileInput(
+  input: Record<string, unknown>,
+): Record<string, unknown> {
   const sanitized: Record<string, unknown> = {};
   for (const key of Object.keys(input)) {
     if (ALLOWED_PROFILE_FIELDS.has(key)) {
@@ -93,7 +99,9 @@ export class AuthService {
     const supabase = this.supabaseService.getAdminClient();
 
     if (!password || password.length < 6) {
-      throw new BadRequestException('Password must be at least 6 characters long');
+      throw new BadRequestException(
+        'Password must be at least 6 characters long',
+      );
     }
 
     const { error } = await supabase.auth.admin.updateUserById(user.id, {

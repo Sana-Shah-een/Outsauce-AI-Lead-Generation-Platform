@@ -2,9 +2,7 @@ import { z } from 'zod';
 
 export const createScrapeSchema = z.object({
   name: z.string().min(1).max(200),
-  sources: z
-    .array(z.enum(['linkedin', 'upwork', 'fiverr', 'reddit']))
-    .min(1),
+  sources: z.array(z.enum(['linkedin', 'upwork', 'fiverr', 'reddit'])).min(1),
   criteria: z
     .object({
       keywords: z.array(z.string().min(1)).min(1),

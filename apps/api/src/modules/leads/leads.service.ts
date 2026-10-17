@@ -207,7 +207,7 @@ export class LeadsService {
 
       const leadsList = data ?? [];
       const leadIdsList = leadsList.map((l) => l.id);
-      let leadTagsMap: Record<string, any[]> = {};
+      const leadTagsMap: Record<string, any[]> = {};
       if (leadIdsList.length > 0) {
         const { data: ltData } = await sb
           .from('lead_tags')
@@ -245,7 +245,7 @@ export class LeadsService {
 
     const leadsList = data ?? [];
     const leadIdsList = leadsList.map((l) => l.id);
-    let leadTagsMap: Record<string, any[]> = {};
+    const leadTagsMap: Record<string, any[]> = {};
     if (leadIdsList.length > 0) {
       const { data: ltData } = await sb
         .from('lead_tags')
@@ -527,7 +527,9 @@ export class LeadsService {
 
     const profile = await this.getProfileForScoring(hunt.user_id);
     if (!profile) {
-      this.logger.log(`No completed profile for user, skipping scoring for hunt ${huntId}`);
+      this.logger.log(
+        `No completed profile for user, skipping scoring for hunt ${huntId}`,
+      );
       return;
     }
 
@@ -539,10 +541,16 @@ export class LeadsService {
       .is('fit_score', null);
 
     if (results && results.length > 0) {
-      this.logger.log(`Scoring ${results.length} scrape results for hunt ${huntId}...`);
+      this.logger.log(
+        `Scoring ${results.length} scrape results for hunt ${huntId}...`,
+      );
       for (const res of results) {
         const { score, reasoning } = await this.leadScoringService.scoreLead(
-          { title: res.title, description: res.description ?? '', source: res.source },
+          {
+            title: res.title,
+            description: res.description ?? '',
+            source: res.source,
+          },
           profile,
         );
 
@@ -576,10 +584,16 @@ export class LeadsService {
       .is('fit_score', null);
 
     if (leads && leads.length > 0) {
-      this.logger.log(`Scoring ${leads.length} remaining leads for hunt ${huntId}...`);
+      this.logger.log(
+        `Scoring ${leads.length} remaining leads for hunt ${huntId}...`,
+      );
       for (const lead of leads) {
         const { score, reasoning } = await this.leadScoringService.scoreLead(
-          { title: lead.title, description: lead.description ?? '', source: lead.source },
+          {
+            title: lead.title,
+            description: lead.description ?? '',
+            source: lead.source,
+          },
           profile,
         );
 
@@ -631,10 +645,13 @@ export class LeadsService {
       srQuery = srQuery.gte('fit_score', minScore);
     }
 
-    const { data: srResults, error: srError } = await srQuery.order('fit_score', {
-      ascending: false,
-      nullsFirst: false,
-    });
+    const { data: srResults, error: srError } = await srQuery.order(
+      'fit_score',
+      {
+        ascending: false,
+        nullsFirst: false,
+      },
+    );
 
     if (!srError && srResults) {
       return srResults;

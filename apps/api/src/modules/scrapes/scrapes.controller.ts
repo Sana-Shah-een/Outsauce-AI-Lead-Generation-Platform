@@ -33,7 +33,9 @@ export class ScrapesController {
     @Body(new ZodValidationPipe(createScrapeSchema)) input: CreateScrapeInput,
   ) {
     const job = await this.scrapesService.create(user.id, input);
-    await this.usageService.recordUsage(user.id, 'hunt_created', { hunt_id: job.id });
+    await this.usageService.recordUsage(user.id, 'hunt_created', {
+      hunt_id: job.id,
+    });
     return job;
   }
 

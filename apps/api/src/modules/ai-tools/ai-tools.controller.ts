@@ -27,7 +27,9 @@ export class AiToolsController {
     @Body(new ZodValidationPipe(generateSchema)) input: GenerateInput,
   ) {
     const result = await this.aiToolsService.generate(user.id, input);
-    await this.usageService.recordUsage(user.id, 'ai_generation', { tool_type: input.tool_type });
+    await this.usageService.recordUsage(user.id, 'ai_generation', {
+      tool_type: input.tool_type,
+    });
     return result;
   }
 
@@ -36,10 +38,14 @@ export class AiToolsController {
   @RequireUsage('ai_generation')
   async generateOutreach(
     @CurrentUser() user: User,
-    @Body(new ZodValidationPipe(generateOutreachSchema)) input: GenerateOutreachInput,
+    @Body(new ZodValidationPipe(generateOutreachSchema))
+    input: GenerateOutreachInput,
   ) {
     const result = await this.aiToolsService.generateOutreach(user.id, input);
-    await this.usageService.recordUsage(user.id, 'ai_generation', { type: 'outreach', lead_id: input.leadId });
+    await this.usageService.recordUsage(user.id, 'ai_generation', {
+      type: 'outreach',
+      lead_id: input.leadId,
+    });
     return result;
   }
 

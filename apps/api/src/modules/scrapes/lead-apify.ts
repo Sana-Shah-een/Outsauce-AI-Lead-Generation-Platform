@@ -85,14 +85,20 @@ export async function fetchOneRedditLead(
 
     if (!items || items.length === 0) {
       logger.warn(`Apify returned 0 items for query "${query}"`);
-      cache.set(cacheKey, { expiresAt: Date.now() + CACHE_TTL_MS, result: null });
+      cache.set(cacheKey, {
+        expiresAt: Date.now() + CACHE_TTL_MS,
+        result: null,
+      });
       return null;
     }
 
     const lead = normalizeApifyItem(items[0] as Record<string, unknown>);
     if (!lead) {
       logger.warn(`Apify item failed to normalize for query "${query}"`);
-      cache.set(cacheKey, { expiresAt: Date.now() + CACHE_TTL_MS, result: null });
+      cache.set(cacheKey, {
+        expiresAt: Date.now() + CACHE_TTL_MS,
+        result: null,
+      });
       return null;
     }
 
@@ -130,9 +136,7 @@ function normalizeApifyItem(
     pickString(raw, 'user');
 
   const subreddit =
-    pickString(raw, 'subreddit') ??
-    pickString(raw, 'community') ??
-    'r/forhire';
+    pickString(raw, 'subreddit') ?? pickString(raw, 'community') ?? 'r/forhire';
 
   const upvotes =
     pickNumber(raw, 'upvotes') ??

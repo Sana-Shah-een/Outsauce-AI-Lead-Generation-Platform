@@ -57,7 +57,7 @@ export class ScrapesService implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     const supabase = this.supabaseService.getAdminClient();
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('scrape_jobs')
         .update({
           status: 'failed',
@@ -73,7 +73,10 @@ export class ScrapesService implements OnApplicationBootstrap {
         );
       }
     } catch (err) {
-      this.logger.error('Failed to run bootstrap cleanup for stuck scrape jobs', err);
+      this.logger.error(
+        'Failed to run bootstrap cleanup for stuck scrape jobs',
+        err,
+      );
     }
   }
 
@@ -82,7 +85,11 @@ export class ScrapesService implements OnApplicationBootstrap {
 
     const now = new Date().toISOString();
     const [{ data: subscription }, { data: usage }] = await Promise.all([
-      supabase.from('subscriptions').select('plan').eq('user_id', userId).single(),
+      supabase
+        .from('subscriptions')
+        .select('plan')
+        .eq('user_id', userId)
+        .single(),
       supabase
         .from('usage')
         .select('*')
@@ -97,7 +104,9 @@ export class ScrapesService implements OnApplicationBootstrap {
     const used = usage?.scrapes_used ?? 0;
 
     if (limit !== -1 && used >= limit) {
-      throw new ForbiddenException('Monthly scrape limit reached. Please upgrade your plan.');
+      throw new ForbiddenException(
+        'Monthly scrape limit reached. Please upgrade your plan.',
+      );
     }
 
     const { data: job, error } = await supabase
@@ -164,7 +173,9 @@ export class ScrapesService implements OnApplicationBootstrap {
         criteria: job.criteria ?? {},
       };
 
-      this.logger.log(`Triggering n8n webhook at ${webhookUrl} for job ${job.id}`);
+      this.logger.log(
+        `Triggering n8n webhook at ${webhookUrl} for job ${job.id}`,
+      );
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
@@ -179,9 +190,10 @@ export class ScrapesService implements OnApplicationBootstrap {
 
       this.logger.log(`Successfully triggered n8n for job ${job.id}`);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown trigger error';
+      const message =
+        err instanceof Error ? err.message : 'Unknown trigger error';
       this.logger.error(`Failed to trigger n8n for job ${job.id}: ${message}`);
-      
+
       this.logger.log(`Falling back to local agent for job ${job.id}`);
       void this.runLocalAgent(job, userId);
     }
@@ -212,7 +224,9 @@ export class ScrapesService implements OnApplicationBootstrap {
         .single();
 
       if (currentJob?.status === 'cancelled') {
-        this.logger.log(`Job ${job.id} was cancelled before execution. Aborting agent.`);
+        this.logger.log(
+          `Job ${job.id} was cancelled before execution. Aborting agent.`,
+        );
         return;
       }
 
@@ -228,9 +242,11 @@ export class ScrapesService implements OnApplicationBootstrap {
 
       const userType = (profile?.user_type as UserType) || 'job_seeker';
 
-      const sources = (job.sources && job.sources.length > 0
-        ? job.sources
-        : ['linkedin', 'upwork', 'fiverr', 'reddit']) as Source[];
+      const sources = (
+        job.sources && job.sources.length > 0
+          ? job.sources
+          : ['linkedin', 'upwork', 'fiverr', 'reddit']
+      ) as Source[];
 
       this.logger.log(
         `Job ${job.id}: generating leads for user_type=${userType}, sources=${sources.join(',')}`,
@@ -297,7 +313,9 @@ export class ScrapesService implements OnApplicationBootstrap {
 
     const real = await fetchOneRedditLead(apifyToken, criteria);
     if (!real) {
-      this.logger.log(`Job ${jobId}: no real reddit lead available — using all synthetic`);
+      this.logger.log(
+        `Job ${jobId}: no real reddit lead available — using all synthetic`,
+      );
       return generated;
     }
 
@@ -318,7 +336,9 @@ export class ScrapesService implements OnApplicationBootstrap {
       company: real.company,
       metadata: real.metadata,
     };
-    this.logger.log(`Job ${jobId}: swapped 1 synthetic reddit lead with real listing`);
+    this.logger.log(
+      `Job ${jobId}: swapped 1 synthetic reddit lead with real listing`,
+    );
     return next;
   }
 
@@ -363,12 +383,7 @@ export class ScrapesService implements OnApplicationBootstrap {
     return data;
   }
 
-  async getResults(
-    userId: string,
-    jobId: string,
-    page: number,
-    limit: number,
-  ) {
+  async getResults(userId: string, jobId: string, page: number, limit: number) {
     await this.findOne(userId, jobId);
 
     const supabase = this.supabaseService.getAdminClient();

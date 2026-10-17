@@ -236,9 +236,7 @@ export class NetworkService {
         )
         .in('id', otherIds);
 
-      profilesById = Object.fromEntries(
-        (profiles ?? []).map((p) => [p.id, p]),
-      );
+      profilesById = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]));
     }
 
     return (connections ?? []).map((c) => {

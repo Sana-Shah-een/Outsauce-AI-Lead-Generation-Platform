@@ -99,7 +99,8 @@ export class AiToolsService {
   ) {
     const apiKey = this.configService.get<string>('GROQ_API_KEY');
     const modelEnv = this.configService.get<string>('GROQ_MODEL');
-    this.model = modelEnv && modelEnv.trim().length > 0 ? modelEnv.trim() : DEFAULT_MODEL;
+    this.model =
+      modelEnv && modelEnv.trim().length > 0 ? modelEnv.trim() : DEFAULT_MODEL;
 
     if (!apiKey) {
       this.logger.warn(
@@ -195,7 +196,9 @@ export class AiToolsService {
 
       return text;
     } catch (err) {
-      this.logger.error(`Groq API error: ${err instanceof Error ? err.message : err}`);
+      this.logger.error(
+        `Groq API error: ${err instanceof Error ? err.message : err}`,
+      );
       throw new InternalServerErrorException('AI generation failed.');
     }
   }
@@ -278,7 +281,9 @@ export class AiToolsService {
 
       const message = response.choices[0]?.message?.content?.trim();
       if (!message) {
-        throw new InternalServerErrorException('Failed to generate outreach content');
+        throw new InternalServerErrorException(
+          'Failed to generate outreach content',
+        );
       }
 
       await sb.from('ai_generations').insert({
@@ -310,7 +315,9 @@ export class AiToolsService {
 
       return { message };
     } catch (err) {
-      this.logger.error(`Outreach generation failed: ${err instanceof Error ? err.message : err}`);
+      this.logger.error(
+        `Outreach generation failed: ${err instanceof Error ? err.message : err}`,
+      );
       throw new InternalServerErrorException('AI outreach generation failed');
     }
   }
@@ -333,9 +340,16 @@ export class AiToolsService {
       ? `LISTING:\n${jobDesc.slice(0, 1500)}`
       : `No specific listing provided. Write a general outreach message the candidate could use to introduce themselves to a relevant hiring manager or client, based on their profile alone.`;
 
-    const roles = Array.isArray(profile.targetRoles) ? profile.targetRoles.join(', ') : '';
-    const skills = Array.isArray(profile.skills) ? profile.skills.join(', ') : '';
-    const resume = typeof profile.resumeText === 'string' ? profile.resumeText.slice(0, 1000) : '';
+    const roles = Array.isArray(profile.targetRoles)
+      ? profile.targetRoles.join(', ')
+      : '';
+    const skills = Array.isArray(profile.skills)
+      ? profile.skills.join(', ')
+      : '';
+    const resume =
+      typeof profile.resumeText === 'string'
+        ? profile.resumeText.slice(0, 1000)
+        : '';
 
     return `Write a short outreach message for the candidate to send.
 

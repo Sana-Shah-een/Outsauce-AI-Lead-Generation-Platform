@@ -27,14 +27,19 @@ export class ProfileService {
       .maybeSingle();
 
     if (error) {
-      this.logger.error(`Error fetching user profile for ${userId}: ${error.message}`);
+      this.logger.error(
+        `Error fetching user profile for ${userId}: ${error.message}`,
+      );
       return null;
     }
 
     return data as UserProfileRow | null;
   }
 
-  async saveProfile(userId: string, input: SaveProfileInput): Promise<UserProfileRow> {
+  async saveProfile(
+    userId: string,
+    input: SaveProfileInput,
+  ): Promise<UserProfileRow> {
     const sb = this.supabaseService.getAdminClient();
 
     const payload = {
@@ -52,7 +57,9 @@ export class ProfileService {
       .single();
 
     if (error) {
-      this.logger.error(`Failed to save profile for ${userId}: ${error.message}`);
+      this.logger.error(
+        `Failed to save profile for ${userId}: ${error.message}`,
+      );
       throw error;
     }
 

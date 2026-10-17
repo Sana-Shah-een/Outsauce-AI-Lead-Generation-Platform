@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
 import { AdminGuard } from '../../common/guards/admin.guard';
@@ -19,14 +28,20 @@ export class AdminController {
   }
 
   @Post('users')
-  async createUser(@Body() body: { email: string; fullName: string; password?: string }) {
-    return this.adminService.createUser(body.email, body.fullName, body.password);
+  async createUser(
+    @Body() body: { email: string; fullName: string; password?: string },
+  ) {
+    return this.adminService.createUser(
+      body.email,
+      body.fullName,
+      body.password,
+    );
   }
 
   @Patch('users/:id')
   async updateUser(
     @Param('id') id: string,
-    @Body() body: { fullName?: string; isAdmin?: boolean; userType?: string }
+    @Body() body: { fullName?: string; isAdmin?: boolean; userType?: string },
   ) {
     return this.adminService.updateUser(id, body);
   }
@@ -62,7 +77,10 @@ export class AdminController {
   }
 
   @Patch('contact/:id/read')
-  async toggleContactRead(@Param('id') id: string, @Body() body: { isRead: boolean }) {
+  async toggleContactRead(
+    @Param('id') id: string,
+    @Body() body: { isRead: boolean },
+  ) {
     return this.adminService.toggleContactRead(id, body.isRead);
   }
 
@@ -72,8 +90,10 @@ export class AdminController {
   }
 
   @Post('contact/:id/reply')
-  async replyToContact(@Param('id') id: string, @Body() body: { message: string }) {
+  async replyToContact(
+    @Param('id') id: string,
+    @Body() body: { message: string },
+  ) {
     return this.adminService.replyToContact(id, body.message);
   }
 }
-

@@ -12,9 +12,12 @@ export class BillingService {
     private readonly supabaseService: SupabaseService,
     private readonly configService: ConfigService,
   ) {
-    this.stripe = new Stripe(this.configService.get<string>('STRIPE_SECRET_KEY') || 'sk_test_mock', {
-      apiVersion: '2023-10-16' as any,
-    });
+    this.stripe = new Stripe(
+      this.configService.get<string>('STRIPE_SECRET_KEY') || 'sk_test_mock',
+      {
+        apiVersion: '2023-10-16' as any,
+      },
+    );
   }
 
   async getSubscriptionAndUsage(userId: string) {
@@ -22,11 +25,7 @@ export class BillingService {
     const now = new Date().toISOString();
 
     const [{ data: subscription }, { data: usage }] = await Promise.all([
-      sb
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', userId)
-        .single(),
+      sb.from('subscriptions').select('*').eq('user_id', userId).single(),
       sb
         .from('usage')
         .select('*')
@@ -54,14 +53,27 @@ export class BillingService {
   ) {
     const sb = this.supabaseService.getAdminClient();
 
-    const { data: profile } = await sb.from('profiles').select('email').eq('id', userId).single();
-    const { data: sub } = await sb.from('subscriptions').select('stripe_customer_id').eq('user_id', userId).single();
+    const { data: profile } = await sb
+      .from('profiles')
+      .select('email')
+      .eq('id', userId)
+      .single();
+    const { data: sub } = await sb
+      .from('subscriptions')
+      .select('stripe_customer_id')
+      .eq('user_id', userId)
+      .single();
 
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
 
-    const priceId = this.configService.get<string>(`STRIPE_PRICE_${plan.toUpperCase()}`);
+    const priceId = this.configService.get<string>(
+      `STRIPE_PRICE_${plan.toUpperCase()}`,
+    );
     if (!priceId) {
-      throw new BadRequestException(`Price ID for plan ${plan} is not configured`);
+      throw new BadRequestException(
+        `Price ID for plan ${plan} is not configured`,
+      );
     }
 
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
@@ -90,13 +102,20 @@ export class BillingService {
 
   async createPortalSession(userId: string) {
     const sb = this.supabaseService.getAdminClient();
-    const { data: sub } = await sb.from('subscriptions').select('stripe_customer_id').eq('user_id', userId).single();
+    const { data: sub } = await sb
+      .from('subscriptions')
+      .select('stripe_customer_id')
+      .eq('user_id', userId)
+      .single();
 
     if (!sub?.stripe_customer_id) {
-      throw new BadRequestException('User does not have an active subscription');
+      throw new BadRequestException(
+        'User does not have an active subscription',
+      );
     }
 
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
 
     const session = await this.stripe.billingPortal.sessions.create({
       customer: sub.stripe_customer_id,
@@ -116,10 +135,12 @@ export class BillingService {
       event = this.stripe.webhooks.constructEvent(
         rawBody,
         signature,
-        this.configService.get<string>('STRIPE_WEBHOOK_SECRET') || 'whsec_mock'
+        this.configService.get<string>('STRIPE_WEBHOOK_SECRET') || 'whsec_mock',
       );
     } catch (err: any) {
-      this.logger.error(`Webhook signature verification failed: ${err.message}`);
+      this.logger.error(
+        `Webhook signature verification failed: ${err.message}`,
+      );
       throw new BadRequestException(`Webhook Error: ${err.message}`);
     }
 
@@ -127,19 +148,26 @@ export class BillingService {
 
     switch (event.type) {
       case 'checkout.session.completed': {
-        const session = event.data.object as Stripe.Checkout.Session;
-        if (session.client_reference_id && session.customer && session.subscription) {
-          await sb.from('subscriptions').update({
-            stripe_customer_id: session.customer.toString(),
-            stripe_subscription_id: session.subscription.toString(),
-            billing_cycle_start: new Date().toISOString(),
-          }).eq('user_id', session.client_reference_id);
+        const session = event.data.object;
+        if (
+          session.client_reference_id &&
+          session.customer &&
+          session.subscription
+        ) {
+          await sb
+            .from('subscriptions')
+            .update({
+              stripe_customer_id: session.customer.toString(),
+              stripe_subscription_id: session.subscription.toString(),
+              billing_cycle_start: new Date().toISOString(),
+            })
+            .eq('user_id', session.client_reference_id);
         }
         break;
       }
 
       case 'invoice.payment_succeeded': {
-        const invoice = event.data.object as Stripe.Invoice;
+        const invoice = event.data.object;
         if (invoice.subscription) {
           const { data: existing } = await sb
             .from('subscriptions')
@@ -147,9 +175,12 @@ export class BillingService {
             .eq('stripe_subscription_id', invoice.subscription.toString())
             .single();
           if (existing) {
-            await sb.from('subscriptions').update({
-              billing_cycle_start: new Date().toISOString(),
-            }).eq('id', existing.id);
+            await sb
+              .from('subscriptions')
+              .update({
+                billing_cycle_start: new Date().toISOString(),
+              })
+              .eq('id', existing.id);
           }
         }
         break;
@@ -157,34 +188,47 @@ export class BillingService {
 
       case 'customer.subscription.created':
       case 'customer.subscription.updated': {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object;
         const customerId = subscription.customer.toString();
 
         const priceId = subscription.items.data[0].price.id;
         let plan = 'free';
-        if (priceId === this.configService.get('STRIPE_PRICE_STARTER')) plan = 'starter';
-        else if (priceId === this.configService.get('STRIPE_PRICE_PRO')) plan = 'pro';
-        else if (priceId === this.configService.get('STRIPE_PRICE_ENTERPRISE')) plan = 'enterprise';
+        if (priceId === this.configService.get('STRIPE_PRICE_STARTER'))
+          plan = 'starter';
+        else if (priceId === this.configService.get('STRIPE_PRICE_PRO'))
+          plan = 'pro';
+        else if (priceId === this.configService.get('STRIPE_PRICE_ENTERPRISE'))
+          plan = 'enterprise';
 
-        await sb.from('subscriptions').update({
-          plan,
-          stripe_subscription_id: subscription.id,
-          current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-          current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-          cancel_at_period_end: subscription.cancel_at_period_end,
-        }).eq('stripe_customer_id', customerId);
+        await sb
+          .from('subscriptions')
+          .update({
+            plan,
+            stripe_subscription_id: subscription.id,
+            current_period_start: new Date(
+              subscription.current_period_start * 1000,
+            ).toISOString(),
+            current_period_end: new Date(
+              subscription.current_period_end * 1000,
+            ).toISOString(),
+            cancel_at_period_end: subscription.cancel_at_period_end,
+          })
+          .eq('stripe_customer_id', customerId);
         break;
       }
 
       case 'customer.subscription.deleted': {
-        const subscription = event.data.object as Stripe.Subscription;
-        await sb.from('subscriptions').update({
-          plan: 'free',
-          stripe_subscription_id: null,
-          current_period_start: null,
-          current_period_end: null,
-          cancel_at_period_end: false,
-        }).eq('stripe_customer_id', subscription.customer.toString());
+        const subscription = event.data.object;
+        await sb
+          .from('subscriptions')
+          .update({
+            plan: 'free',
+            stripe_subscription_id: null,
+            current_period_start: null,
+            current_period_end: null,
+            cancel_at_period_end: false,
+          })
+          .eq('stripe_customer_id', subscription.customer.toString());
         break;
       }
     }

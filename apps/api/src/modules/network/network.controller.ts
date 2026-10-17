@@ -76,10 +76,7 @@ export class NetworkController {
   }
 
   @Get('connections')
-  getConnections(
-    @CurrentUser() user: User,
-    @Query('status') status?: string,
-  ) {
+  getConnections(@CurrentUser() user: User, @Query('status') status?: string) {
     return this.networkService.getConnections(user.id, status);
   }
 }

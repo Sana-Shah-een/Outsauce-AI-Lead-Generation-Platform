@@ -38,9 +38,7 @@ export class MessagesService {
       .select('conversation_id')
       .eq('user_id', userId);
 
-    const userConvIds = (userConversations ?? []).map(
-      (c) => c.conversation_id,
-    );
+    const userConvIds = (userConversations ?? []).map((c) => c.conversation_id);
 
     if (userConvIds.length > 0) {
       const { data: recipientParticipation } = await sb
@@ -68,7 +66,9 @@ export class MessagesService {
       .select('*')
       .single();
 
-    if (convError || !conversation) throw convError;
+    if (convError || !conversation) {
+      throw convError ?? new Error('Failed to create conversation');
+    }
 
     const { error: partError } = await sb
       .from('conversation_participants')
@@ -132,13 +132,10 @@ export class MessagesService {
 
     for (const p of allParticipants ?? []) {
       broadcasts.push(
-        sendRealtimeBroadcast(
-          url,
-          key,
-          `user:${p.user_id}`,
-          'inbox_update',
-          { conversation_id: conversationId, message },
-        ),
+        sendRealtimeBroadcast(url, key, `user:${p.user_id}`, 'inbox_update', {
+          conversation_id: conversationId,
+          message,
+        }),
       );
     }
 
@@ -189,9 +186,7 @@ export class MessagesService {
         .select('id, full_name, avatar_url, headline')
         .in('id', otherUserIds);
 
-      profilesMap = Object.fromEntries(
-        (profiles ?? []).map((p) => [p.id, p]),
-      );
+      profilesMap = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]));
     }
 
     const participantsByConv = new Map<string, unknown[]>();

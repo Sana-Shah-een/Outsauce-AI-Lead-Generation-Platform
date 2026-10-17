@@ -5,7 +5,10 @@ export const generateOutreachSchema = z.object({
   resumeText: z.string().optional().default(''),
   targetRoles: z.array(z.string()).optional().default([]),
   skills: z.array(z.string()).optional().default([]),
-  tone: z.enum(['professional', 'casual', 'direct']).optional().default('professional'),
+  tone: z
+    .enum(['professional', 'casual', 'direct'])
+    .optional()
+    .default('professional'),
   leadId: z.string().uuid().optional().nullable(),
 });
 

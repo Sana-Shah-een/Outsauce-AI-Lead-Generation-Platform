@@ -54,7 +54,9 @@ export class LeadsController {
     @Body(new ZodValidationPipe(createLeadSchema)) input: CreateLeadInput,
   ) {
     const lead = await this.leadsService.create(user.id, input);
-    await this.usageService.recordUsage(user.id, 'lead_created', { lead_id: lead.id });
+    await this.usageService.recordUsage(user.id, 'lead_created', {
+      lead_id: lead.id,
+    });
     return lead;
   }
 
@@ -68,7 +70,9 @@ export class LeadsController {
   ) {
     const leads = await this.leadsService.bulkCreate(user.id, input);
     for (const lead of leads) {
-      await this.usageService.recordUsage(user.id, 'lead_created', { lead_id: lead.id });
+      await this.usageService.recordUsage(user.id, 'lead_created', {
+        lead_id: lead.id,
+      });
     }
     return leads;
   }

@@ -38,10 +38,7 @@ export class MessagesController {
     @Body(new ZodValidationPipe(createConversationSchema))
     input: CreateConversationInput,
   ) {
-    return this.messagesService.createConversation(
-      user.id,
-      input.recipient_id,
-    );
+    return this.messagesService.createConversation(user.id, input.recipient_id);
   }
 
   @Get('conversations')

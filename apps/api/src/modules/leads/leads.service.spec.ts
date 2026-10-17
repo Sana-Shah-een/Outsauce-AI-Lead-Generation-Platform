@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { LeadsService } from './leads.service';
 import { SupabaseService } from '../../supabase/supabase.service';
@@ -67,21 +67,27 @@ describe('LeadsService', () => {
           return {
             select: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
-            single: jest.fn().mockResolvedValue({ data: mockScrapeResult, error: null }),
+            single: jest
+              .fn()
+              .mockResolvedValue({ data: mockScrapeResult, error: null }),
           };
         }
         if (table === 'subscriptions') {
           return {
             select: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
-            single: jest.fn().mockResolvedValue({ data: { plan: 'free' }, error: null }),
+            single: jest
+              .fn()
+              .mockResolvedValue({ data: { plan: 'free' }, error: null }),
           };
         }
         if (table === 'leads') {
           return {
             insert: jest.fn().mockReturnThis(),
             select: jest.fn().mockReturnThis(),
-            single: jest.fn().mockResolvedValue({ data: mockLead, error: null }),
+            single: jest
+              .fn()
+              .mockResolvedValue({ data: mockLead, error: null }),
           };
         }
         return {};
@@ -111,21 +117,29 @@ describe('LeadsService', () => {
           return {
             select: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
-            single: jest.fn().mockResolvedValue({ data: { id: 'sr-1' }, error: null }),
+            single: jest
+              .fn()
+              .mockResolvedValue({ data: { id: 'sr-1' }, error: null }),
           };
         }
         if (table === 'subscriptions') {
           return {
             select: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
-            single: jest.fn().mockResolvedValue({ data: { plan: 'free' }, error: null }),
+            single: jest
+              .fn()
+              .mockResolvedValue({ data: { plan: 'free' }, error: null }),
           };
         }
         return {};
       });
 
       mockSupabaseAdmin.rpc.mockResolvedValue({
-        error: { code: 'P0001', message: 'LEAD_LIMIT_EXCEEDED: user user-1 has 20 of 20 leads this period' },
+        error: {
+          code: 'P0001',
+          message:
+            'LEAD_LIMIT_EXCEEDED: user user-1 has 20 of 20 leads this period',
+        },
       });
 
       await expect(service.create(userId, input as any)).rejects.toThrow(
@@ -145,31 +159,33 @@ describe('LeadsService', () => {
         { id: 'sr-3', source: 'upwork' },
       ];
 
-      const mockLeads = [
-        { id: 'lead-1' },
-        { id: 'lead-2' },
-        { id: 'lead-3' },
-      ];
+      const mockLeads = [{ id: 'lead-1' }, { id: 'lead-2' }, { id: 'lead-3' }];
 
       mockSupabaseAdmin.from.mockImplementation((table: string) => {
         if (table === 'scrape_results') {
           return {
             select: jest.fn().mockReturnThis(),
             in: jest.fn().mockReturnThis(),
-            eq: jest.fn().mockResolvedValue({ data: mockScrapeResults, error: null }),
+            eq: jest
+              .fn()
+              .mockResolvedValue({ data: mockScrapeResults, error: null }),
           };
         }
         if (table === 'subscriptions') {
           return {
             select: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
-            single: jest.fn().mockResolvedValue({ data: { plan: 'starter' }, error: null }),
+            single: jest
+              .fn()
+              .mockResolvedValue({ data: { plan: 'starter' }, error: null }),
           };
         }
         if (table === 'leads') {
           return {
             insert: jest.fn().mockReturnThis(),
-            select: jest.fn().mockResolvedValue({ data: mockLeads, error: null }),
+            select: jest
+              .fn()
+              .mockResolvedValue({ data: mockLeads, error: null }),
           };
         }
         return {};
@@ -209,7 +225,9 @@ describe('LeadsService', () => {
           return {
             select: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
-            single: jest.fn().mockResolvedValue({ data: { plan: 'free' }, error: null }),
+            single: jest
+              .fn()
+              .mockResolvedValue({ data: { plan: 'free' }, error: null }),
           };
         }
         return {};
@@ -227,8 +245,6 @@ describe('LeadsService', () => {
     it('should handle concurrent bulkCreate invocations correctly via atomic RPC calls', async () => {
       const userId = 'user-1';
       let currentUsed = 15;
-      const limit = 20;
-
       mockSupabaseAdmin.from.mockImplementation((table: string) => {
         if (table === 'scrape_results') {
           return {
@@ -246,7 +262,9 @@ describe('LeadsService', () => {
           return {
             select: jest.fn().mockReturnThis(),
             eq: jest.fn().mockReturnThis(),
-            single: jest.fn().mockResolvedValue({ data: { plan: 'free' }, error: null }),
+            single: jest
+              .fn()
+              .mockResolvedValue({ data: { plan: 'free' }, error: null }),
           };
         }
         if (table === 'leads') {
@@ -263,7 +281,10 @@ describe('LeadsService', () => {
 
       mockSupabaseAdmin.rpc.mockImplementation((name: string, args: any) => {
         if (name === 'check_and_increment_lead_usage') {
-          if (args.p_limit !== -1 && currentUsed + args.p_count > args.p_limit) {
+          if (
+            args.p_limit !== -1 &&
+            currentUsed + args.p_count > args.p_limit
+          ) {
             return Promise.resolve({
               error: { code: 'P0001', message: 'LEAD_LIMIT_EXCEEDED' },
             });
@@ -276,7 +297,9 @@ describe('LeadsService', () => {
 
       // 4 concurrent calls of batch size 3 (15 + 3 = 18 <= 20 (passes), next 18 + 3 = 21 > 20 (fails))
       const calls = Array.from({ length: 4 }, () =>
-        service.bulkCreate(userId, { scrape_result_ids: ['sr-1', 'sr-2', 'sr-3'] }),
+        service.bulkCreate(userId, {
+          scrape_result_ids: ['sr-1', 'sr-2', 'sr-3'],
+        }),
       );
 
       const results = await Promise.allSettled(calls);

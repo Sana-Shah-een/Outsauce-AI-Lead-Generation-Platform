@@ -49,9 +49,15 @@ export class UsageService {
       .gt('period_end', now)
       .maybeSingle();
 
-    const leads = usageRow?.leads_used ?? await this.countEvents(userId, 'lead_created', cycleStart);
-    const hunts = usageRow?.scrapes_used ?? await this.countEvents(userId, 'hunt_created', cycleStart);
-    const aiGenerations = usageRow?.ai_generations_used ?? await this.countEvents(userId, 'ai_generation', cycleStart);
+    const leads =
+      usageRow?.leads_used ??
+      (await this.countEvents(userId, 'lead_created', cycleStart));
+    const hunts =
+      usageRow?.scrapes_used ??
+      (await this.countEvents(userId, 'hunt_created', cycleStart));
+    const aiGenerations =
+      usageRow?.ai_generations_used ??
+      (await this.countEvents(userId, 'ai_generation', cycleStart));
 
     const leadsLimit = plan?.leads_limit ?? 20;
     const huntsLimit = plan?.hunts_limit ?? 5;
@@ -76,11 +82,15 @@ export class UsageService {
     };
   }
 
-  async recordUsage(userId: string, eventType: EventType, metadata: Record<string, unknown> = {}) {
+  async recordUsage(
+    userId: string,
+    eventType: EventType,
+    metadata: Record<string, unknown> = {},
+  ) {
     const sb = this.supabaseService.getAdminClient();
     const { error } = await sb
       .from('usage_events')
-.insert({ user_id: userId, event_type: eventType, metadata });
+      .insert({ user_id: userId, event_type: eventType, metadata });
     if (error) {
       this.logger.error(`Failed to record usage event: ${error.message}`);
     }
@@ -88,19 +98,28 @@ export class UsageService {
 
   async checkLimit(userId: string, eventType: EventType): Promise<boolean> {
     const usage = await this.getCurrentUsage(userId);
-    const key = eventType === 'lead_created' ? 'leads' : eventType === 'hunt_created' ? 'hunts' : 'aiGenerations';
+    const key =
+      eventType === 'lead_created'
+        ? 'leads'
+        : eventType === 'hunt_created'
+          ? 'hunts'
+          : 'aiGenerations';
     const { used, limit } = usage[key];
     return limit === null || used < limit;
   }
 
-  private async countEvents(userId: string, eventType: string, since: Date): Promise<number> {
+  private async countEvents(
+    userId: string,
+    eventType: string,
+    since: Date,
+  ): Promise<number> {
     const sb = this.supabaseService.getAdminClient();
     const { count, error } = await sb
       .from('usage_events')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
       .eq('event_type', eventType)
-.gte('created_at', since.toISOString());
+      .gte('created_at', since.toISOString());
 
     if (error) {
       this.logger.error(`Failed to count events: ${error.message}`);

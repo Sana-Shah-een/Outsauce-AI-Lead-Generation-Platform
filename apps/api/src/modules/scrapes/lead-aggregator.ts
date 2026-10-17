@@ -190,7 +190,11 @@ async function fetchHackerNews(
 
     const text = stripHtml(hit.comment_text ?? '');
     if (!text || text.length < 60) continue;
-    if (!/\b(hiring|seeking|looking for|we need|join us|developer|engineer|designer|remote)\b/i.test(text)) {
+    if (
+      !/\b(hiring|seeking|looking for|we need|join us|developer|engineer|designer|remote)\b/i.test(
+        text,
+      )
+    ) {
       continue;
     }
 

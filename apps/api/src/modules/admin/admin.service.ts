@@ -18,9 +18,13 @@ export class AdminService {
       { count: leadsCount },
       { count: scrapesCount },
     ] = await Promise.all([
-      this.supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      this.supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true }),
       this.supabase.from('leads').select('*', { count: 'exact', head: true }),
-      this.supabase.from('scrape_jobs').select('*', { count: 'exact', head: true }),
+      this.supabase
+        .from('scrape_jobs')
+        .select('*', { count: 'exact', head: true }),
     ]);
 
     return {
@@ -33,7 +37,8 @@ export class AdminService {
   async getUsers() {
     const { data, error } = await this.supabase
       .from('profiles')
-      .select(`
+      .select(
+        `
         id, 
         email, 
         full_name, 
@@ -41,14 +46,15 @@ export class AdminService {
         created_at, 
         is_admin,
         subscriptions(plan)
-      `)
+      `,
+      )
       .order('created_at', { ascending: false });
 
     if (error) throw new InternalServerErrorException(error.message);
 
-    return data.map(user => ({
+    return data.map((user) => ({
       ...user,
-      plan: user.subscriptions?.[0]?.plan || 'free'
+      plan: user.subscriptions?.[0]?.plan || 'free',
     }));
   }
 
@@ -139,12 +145,13 @@ export class AdminService {
   }
 
   async createUser(email: string, fullName: string, password?: string) {
-    const { data: authUser, error: authError } = await this.supabase.auth.admin.createUser({
-      email,
-      password: password || 'Outsauce123!',
-      email_confirm: true,
-      user_metadata: { full_name: fullName }
-    });
+    const { data: authUser, error: authError } =
+      await this.supabase.auth.admin.createUser({
+        email,
+        password: password || 'Outsauce123!',
+        email_confirm: true,
+        user_metadata: { full_name: fullName },
+      });
 
     if (authError) throw new InternalServerErrorException(authError.message);
 
@@ -156,13 +163,16 @@ export class AdminService {
     return authUser.user;
   }
 
-  async updateUser(userId: string, updates: { fullName?: string; isAdmin?: boolean; userType?: string }) {
+  async updateUser(
+    userId: string,
+    updates: { fullName?: string; isAdmin?: boolean; userType?: string },
+  ) {
     const { error } = await this.supabase
       .from('profiles')
       .update({
         full_name: updates.fullName,
         is_admin: updates.isAdmin,
-        user_type: updates.userType
+        user_type: updates.userType,
       })
       .eq('id', userId);
 
@@ -239,7 +249,8 @@ export class AdminService {
       .eq('id', id)
       .single();
 
-    if (fetchError || !submission) throw new InternalServerErrorException('Submission not found');
+    if (fetchError || !submission)
+      throw new InternalServerErrorException('Submission not found');
 
     await this.toggleContactRead(id, true);
 
@@ -249,7 +260,9 @@ export class AdminService {
     const smtpPass = process.env.SMTP_PASS;
 
     if (!smtpUser || !smtpPass) {
-      throw new InternalServerErrorException('SMTP credentials are not configured in the environment');
+      throw new InternalServerErrorException(
+        'SMTP credentials are not configured in the environment',
+      );
     }
 
     try {
@@ -284,13 +297,15 @@ export class AdminService {
       console.log(`[ADMIN REPLY] Successfully sent to: ${submission.email}`);
     } catch (emailError) {
       console.error('[ADMIN REPLY] Error sending email:', emailError);
-      throw new InternalServerErrorException('Failed to send the reply email. Please check SMTP configuration.');
+      throw new InternalServerErrorException(
+        'Failed to send the reply email. Please check SMTP configuration.',
+      );
     }
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       recipient: submission.email,
-      sentAt: new Date().toISOString()
+      sentAt: new Date().toISOString(),
     };
   }
 }

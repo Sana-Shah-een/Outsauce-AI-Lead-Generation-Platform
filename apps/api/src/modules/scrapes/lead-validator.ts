@@ -44,7 +44,13 @@ export async function validateCandidates(
       const i = cursor++;
       const hit = pool[i];
       try {
-        const result = await validateOne(anthropic, model, hit, userType, criteria);
+        const result = await validateOne(
+          anthropic,
+          model,
+          hit,
+          userType,
+          criteria,
+        );
         if (result.passes && result.lead) {
           validated.push(result.lead);
         } else {
@@ -131,16 +137,19 @@ async function validateOne(
   if (v.passes !== true) {
     return {
       passes: false,
-      reason: typeof v.reject_reason === 'string' ? v.reject_reason : 'rejected',
+      reason:
+        typeof v.reject_reason === 'string' ? v.reject_reason : 'rejected',
     };
   }
 
-  const title = typeof v.title === 'string' && v.title.trim().length > 0
-    ? v.title.trim()
-    : hit.title;
-  const description = typeof v.description === 'string'
-    ? v.description.trim()
-    : hit.description ?? '';
+  const title =
+    typeof v.title === 'string' && v.title.trim().length > 0
+      ? v.title.trim()
+      : hit.title;
+  const description =
+    typeof v.description === 'string'
+      ? v.description.trim()
+      : (hit.description ?? '');
 
   const lead: ValidatedLead = {
     hit,
@@ -238,6 +247,7 @@ function extractJsonObject(text: string): unknown {
     try {
       return JSON.parse(fenced[1]);
     } catch {
+      return null;
     }
   }
 

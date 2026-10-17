@@ -187,7 +187,10 @@ export async function generateLeads(
     if (typeof r.location === 'string' && r.location.trim().length > 0) {
       lead.location = r.location.trim();
     }
-    if (typeof r.salary_range === 'string' && r.salary_range.trim().length > 0) {
+    if (
+      typeof r.salary_range === 'string' &&
+      r.salary_range.trim().length > 0
+    ) {
       lead.salary_range = r.salary_range.trim();
     }
     if (typeof r.salary_min === 'number' && Number.isFinite(r.salary_min)) {
@@ -196,7 +199,11 @@ export async function generateLeads(
     if (typeof r.salary_max === 'number' && Number.isFinite(r.salary_max)) {
       lead.salary_max = r.salary_max;
     }
-    if (r.metadata && typeof r.metadata === 'object' && !Array.isArray(r.metadata)) {
+    if (
+      r.metadata &&
+      typeof r.metadata === 'object' &&
+      !Array.isArray(r.metadata)
+    ) {
       lead.metadata = r.metadata as Record<string, unknown>;
     }
 
@@ -236,6 +243,7 @@ function extractJsonObject(text: string): unknown {
     try {
       return JSON.parse(fenced[1]);
     } catch {
+      return null;
     }
   }
 
