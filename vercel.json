@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "installCommand": "corepack prepare pnpm@10.29.3 --activate && pnpm install --no-frozen-lockfile",
-  "buildCommand": "pnpm --filter @outsauce/web build"
+  "installCommand": "pnpm install --ignore-workspace --frozen-lockfile",
+  "buildCommand": "pnpm run build"
 }
